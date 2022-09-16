@@ -1,0 +1,10 @@
+torch
+numpy
+scipy
+sklearn
+requests
+filelock
+tqdm
+tokenizers
+regex
+packaging
