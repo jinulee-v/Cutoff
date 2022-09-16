@@ -705,7 +705,7 @@ class Trainer:
         input_masks = []
         for i in range(embeds.shape[0]):
             cutoff_length = int(input_lens[i] * self.args.aug_cutoff_ratio)
-            start = int(torch.rand(1) * (input_lens[i] - cutoff_length))
+            start = int(torch.rand(1) * (input_lens[i].item() - cutoff_length))
             # print(input_lens[i], cutoff_length, start)
             cutoff_embed = torch.cat((embeds[i][:start],
                                       torch.zeros([cutoff_length, embeds.shape[-1]],
