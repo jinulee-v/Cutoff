@@ -77,16 +77,25 @@ def format_mrpc(data_dir, path_to_data):
             label, id1, id2, s1, s2 = row.strip().split('\t')
             test_fh.write("%d\t%s\t%s\t%s\t%s\n" % (idx, id1, id2, s1, s2))
 
+    download_mrpc_dev_ids = True
     try:
         URLLIB.urlretrieve(TASK2PATH["MRPC"], os.path.join(mrpc_dir, "dev_ids.tsv"))
     except KeyError or urllib.error.HTTPError:
-        print("\tError downloading standard development IDs for MRPC. You will need to manually split your data.")
-        return
+        print("\tError downloading standard development IDs for MRPC.")
+        download_mrpc_dev_ids = False
 
     dev_ids = []
-    with io.open(os.path.join(mrpc_dir, "dev_ids.tsv"), encoding='utf-8') as ids_fh:
-        for row in ids_fh:
-            dev_ids.append(row.strip().split('\t'))
+    try:
+        with io.open(os.path.join(mrpc_dir, "dev_ids.tsv"), encoding='utf-8') as ids_fh:
+            if not download_mrpc_dev_ids:
+                print("\tHowever, successfully found locally download `dev_ids.tsv` file.")
+            for row in ids_fh:
+                dev_ids.append(row.strip().split('\t'))
+    except FileNotFoundError:
+        print("\tCannot find locally downloaded `dev_ids.tsv` file.")
+        if not download_mrpc_dev_ids:
+            print("\tTry downloading MRPC `dev_ids.tsv` file into " + mrpc_dir + " and retry the process.")
+        return
 
     with io.open(mrpc_train_file, encoding='utf-8') as data_fh, \
          io.open(os.path.join(mrpc_dir, "train.tsv"), 'w', encoding='utf-8') as train_fh, \
@@ -128,7 +137,7 @@ def main(arguments):
     parser.add_argument('--data_dir', help='directory to save data to', type=str, default='glue_data')
     parser.add_argument('--tasks', help='tasks to download data for as a comma separated string',
                         type=str, default='all')
-    parser.add_argument('--path_to_mrpc', help='path to directory containing extracted MRPC data, msr_paraphrase_train.txt and msr_paraphrase_text.txt',
+    parser.add_argument('--path_to_mrpc', help='path to directory containing extracted MRPC data, msr_paraphrase_train.txt and msr_paraphrase_test.txt',
                         type=str, default='')
     args = parser.parse_args(arguments)
 
